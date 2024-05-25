@@ -1,0 +1,21 @@
+button {
+    width: 100%;
+    margin-top: 5px;
+}
+
+body {
+    width: 450px; /* max: 800px */
+    height: 600px; /* max: 600px more than this will cause a scrollbar */ 
+}
+
+footer {
+    min-height: 50px;
+}
+
+.unselectable {
+    -webkit-user-select: none;  /* Chrome, Safari, Opera */
+    -moz-user-select: none;     /* Firefox */
+    -ms-user-select: none;      /* IE/Edge */
+    user-select: none;          /* Standard syntax */
+}
+
