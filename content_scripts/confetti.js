@@ -3,7 +3,6 @@
 // add css animations in the popup
 // make steel wool follow the mouse
 
-
 import confetti from 'canvas-confetti';
 
 function randomInRange(min, max) {
@@ -225,85 +224,92 @@ function snow(profileSettings) {
 
 
 
-
-
 // splitting this into its own function lets the user test settings without refreshing the page
 function getSelectedProfile() {
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.get('selectedProfile', function(data) {
+        browser.storage.sync.get('selectedProfile').then((data) => {
             resolve(data.selectedProfile || 'confetti');
-        });
+        }).catch((error) => {
+            reject(error);
+        })
     });
 }
 function getSettings(selectedProfile) {
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.get(selectedProfile, function(data) {
+        browser.storage.sync.get(selectedProfile).then((data) => {
             resolve(data[selectedProfile] || {}); //returns profileSettings
-        });
+        }).catch((error) => {
+            reject(error);
+        })
     });
 }
 
-window.onload = async function() {
-    // console.log('%cinside dom event listener', 'color: green; font-weight: bold;');
-    const LSSubmit = '[data-v-625658].text-white.bg-primary-dark.hover\\:bg-primary-alt.p-px.font-metro.focus\\:outline-none.transition-colors.duration-150';
-    const LSCheckOff = '[data-v--363100].float-right.ml-2.w-28.text-white.bg-primary-dark.hover\\:bg-primary-alt.p-px.font-metro.focus\\:outline-none.transition-colors.duration-150';
-    
-    let profileSettings;
-    let selectedProfile;
-    try {
-        selectedProfile = await getSelectedProfile();
-        profileSettings = await getSettings(selectedProfile);
-    } catch (error) {
-        console.error('An error occurred with getSettings:', error);
+
+//////////////////
+////// MAIN //////
+//////////////////
+
+
+// console.log('%cinside dom event listener', 'color: green; font-weight: bold;');
+const LSSubmit = '[data-v-625658].text-white.bg-primary-dark.hover\\:bg-primary-alt.p-px.font-metro.focus\\:outline-none.transition-colors.duration-150';
+const LSCheckOff = '[data-v--363100].float-right.ml-2.w-28.text-white.bg-primary-dark.hover\\:bg-primary-alt.p-px.font-metro.focus\\:outline-none.transition-colors.duration-150';
+
+let profileSettings;
+let selectedProfile;
+try {
+    selectedProfile = await getSelectedProfile();
+    profileSettings = await getSettings(selectedProfile);
+} catch (error) {
+    console.error('An error occurred with getSettings:', error);
+}
+
+const checkOffEnabled = profileSettings["checkOffSwitch"] || false;
+
+const handleClick = async (event) => {
+    switch(selectedProfile) { // no need for default
+        case "confetti":
+            initialConfetti(profileSettings);
+            break;
+        case "steelWool":
+            steelWool(profileSettings);
+            break;
+        case "fireworks":
+            fireworks(profileSettings);
+            break;
+        case "snow":
+            snow(profileSettings);
+            break;
     }
+};
 
-    const checkOffEnabled = profileSettings["checkOffSwitch"] || false;
-
-    const handleClick = async (event) => {
-        switch(selectedProfile) { // no need for default
-            case "confetti":
-                initialConfetti(profileSettings);
-                break;
-            case "steelWool":
-                steelWool(profileSettings);
-                break;
-            case "fireworks":
-                fireworks(profileSettings);
-                break;
-            case "snow":
-                snow(profileSettings);
-                break;
-        }
-    };
-
-    const attachClickListener = function() {
-        let submitButtons = Array.from(document.querySelectorAll(LSSubmit));
-        if (checkOffEnabled) { 
-            let buttons = document.querySelectorAll(LSCheckOff);
-            let checkOffButtons = Array.from(buttons).filter(button => {
-                let childDivs = button.querySelectorAll('div');
-                return Array.from(childDivs).some(div => div.textContent.includes('Check Off'));
-            });
-            submitButtons = submitButtons.concat(checkOffButtons);
-        }
-        submitButtons.forEach(function (submitButton) {
-            if (!submitButton.hasClickListener) {
-                submitButton.addEventListener('click', handleClick);
-                submitButton.hasClickListener = true;
-            }
+const attachClickListener = function() {
+    let submitButtons = Array.from(document.querySelectorAll(LSSubmit));
+    if (checkOffEnabled) { 
+        let buttons = document.querySelectorAll(LSCheckOff);
+        let checkOffButtons = Array.from(buttons).filter(button => {
+            let childDivs = button.querySelectorAll('div');
+            return Array.from(childDivs).some(div => div.textContent.includes('Check Off'));
         });
-    };
-
-    attachClickListener(); //initial attach
-
-    // when the dom changes
-    const observer = new MutationObserver((mutationsList, observer) => {
-        for(let mutation of mutationsList) {
-            if (mutation.type === 'childList' || mutation.type === 'attributes' || mutation.type === 'characterData') {
-                attachClickListener();
-            }
+        submitButtons = submitButtons.concat(checkOffButtons);
+    }
+    submitButtons.forEach(function (submitButton) {
+        if (!submitButton.hasClickListener) {
+            submitButton.addEventListener('click', handleClick);
+            submitButton.hasClickListener = true;
         }
     });
-  
-    observer.observe(document.body, { childList: true, attributes: true, characterData: true, subtree: true });
 };
+
+attachClickListener(); //initial attach
+
+// when the dom changes
+const observer = new MutationObserver((mutationsList, observer) => {
+    for(let mutation of mutationsList) {
+        if (mutation.type === 'childList' || mutation.type === 'attributes' || mutation.type === 'characterData') {
+            attachClickListener();
+        }
+    }
+});
+
+observer.observe(document.body, { childList: true, attributes: true, characterData: true, subtree: true });
+// console.log('%cconfetti.js loaded', 'color: green; font-weight: bold;');

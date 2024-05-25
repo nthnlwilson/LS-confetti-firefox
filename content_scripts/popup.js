@@ -60,7 +60,7 @@ let selectedProfile = null;
 
 window.onload = function() {
     // Get the selected profile name
-    chrome.storage.sync.get('selectedProfile', function(data) {
+    browser.storage.sync.get('selectedProfile').then((data) => {
         selectedProfile = data.selectedProfile;
         if (selectedProfile) {
             getSavedSettings(selectedProfile, function(profileSettings) {
@@ -97,14 +97,18 @@ window.onload = function() {
                 profile[colorInput.id] = colorInput.value;
             });
 
-            // Save the profile object to chrome storage
-            chrome.storage.sync.set({[selectedProfile]: profile}, function() {
+            // Save the profile object to firefox storage
+            browser.storage.sync.set({[selectedProfile]: profile}).then(() => { 
                 console.log('Profile saved');
+            }).catch((error) => {
+                console.error('Error saving profile:', error);
             });
 
-            // tell confetti.js which profile to use
-            chrome.storage.sync.set({selectedProfile: selectedProfile}, function() {
+            // // tell confetti.js which profile to use
+            browser.storage.sync.set({selectedProfile: selectedProfile}).then(() => { 
                 console.log('Selected profile is set to ' + selectedProfile);
+            }).catch((error) => {
+                console.error('Error while setting selectedProfile: ', error);
             });
     }); 
 
@@ -133,14 +137,18 @@ window.onload = function() {
 
 function getSavedSettings(profileName, callback) {
     // Get the profile directly
-    chrome.storage.sync.get(profileName, function(data) {
+    browser.storage.sync.get(profileName).then((data) => {
         let profile = data[profileName];
         if (profile) {
+            console.log("SETTINGS: ", profile, 'color: green; font-weight: bold;');
             callback(profile);
         } else {
+            console.log("No profile :(  ", 'color: green; font-weight: bold;');
             callback(null);
         }
-    }); 
+    }).catch((error) => {
+        console.error('Error while getting profile:', error);
+    });
 }
 
 // this also resets the other switches
