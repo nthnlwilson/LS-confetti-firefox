@@ -189,6 +189,9 @@ function snow(profileSettings) {
     let duration = inputTime * 1000;
     let animationEnd = Date.now() + duration;
     let skew = 1;
+    let wind = profileSettings['driftSlider'] || 0;
+    let driftLeft = 0;
+    let driftRight = 0; 
 
     let settings = {
         particleCount: profileSettings['particleSlider'] || 1,
@@ -196,6 +199,7 @@ function snow(profileSettings) {
         ticks: 200,
         colors: [profileSettings['colorSelector1'] || '#ffffff', profileSettings['colorSelector2'] ||  '#ffffff', profileSettings['colorSelector3'] ||  '#ffffff'],
         shapes: ['circle'],
+        drift: wind,
     }
 
     function frame() {
@@ -206,7 +210,9 @@ function snow(profileSettings) {
         settings.colors.push(settings.colors.shift());
         settings.gravity = randomInRange(0.4, 0.6);
         settings.scalar = randomInRange(0.4, 1);
-        settings.drift = randomInRange(-0.4, 0.4);
+        driftLeft = wind - 0.4;
+        driftRight = .4 + wind; 
+        settings.drift = randomInRange( driftLeft, driftRight );
         settings.origin = {
             x: Math.random(),
             y: (Math.random() * skew) - 0.2 // since particles fall down, skew start toward the top

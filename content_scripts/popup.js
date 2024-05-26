@@ -22,6 +22,7 @@ const defaultSnow = {
     "velocitySlider": 0,
     "timeSlider": 5,
     "particleSlider": 1,
+    "driftSlider": 0,
     "colorSelector1": '#ffffff',
     "colorSelector2": '#ffffff',
     "colorSelector3": '#ffffff'
@@ -140,7 +141,7 @@ function getSavedSettings(profileName, callback) {
     browser.storage.sync.get(profileName).then((data) => {
         let profile = data[profileName];
         if (profile) {
-            console.log("SETTINGS: ", profile, 'color: green; font-weight: bold;');
+            // console.log("SETTINGS: ", profile, 'color: green; font-weight: bold;');
             callback(profile);
         } else {
             console.log("No profile :(  ", 'color: green; font-weight: bold;');
@@ -238,6 +239,9 @@ function createColorInputs(parentId, labelText, colorSelectorIds) {
         newInput.className = "form-control form-control-color";
         newInput.type = "color";
         newInput.id = colorSelectorIds[i];
+        newInput.addEventListener('mousedown', function(event) {
+            event.preventDefault(); // Prevent event from reaching the parent element
+        });
         colorContainer.appendChild(newInput);
     };
 
@@ -263,7 +267,8 @@ function addSwitchEventListeners() {
         const parentId = "snowOptions";
         if(event.target.checked) {
             createSliders(parentId, "Particle Count", "particleSlider", 1, 10, 1);
-            createSliders(parentId, "Initial Velocity", "velocitySlider", 0, 200, 1);
+            createSliders(parentId, "Wind", "driftSlider", -5, 5, .5);
+            createSliders(parentId, "Initial Velocity", "velocitySlider", -10, 10, 1);
             createSliders(parentId, "Duration", "timeSlider", 1, 30, 1);
             
             createColorInputs(parentId, "Snow Colors", colorSelectorIds);
