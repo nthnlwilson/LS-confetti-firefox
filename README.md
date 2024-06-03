@@ -10,5 +10,6 @@ Transform the mundane task of assignment submission into a moment of accomplishm
 Feel free to fork the repository to add your own effects or perhaps to bring the spark of joy to other browsers!
   <br />
 <br />
-Confetti icon by Jemis Mali - https://iconscout.com/contributors/jemismali   
+Confetti icon by Jemis Mali - https://iconscout.com/contributors/jemismali 
+<br />
 Confetti Powered by Canvas-confetti - https://github.com/catdad/canvas-confetti   
